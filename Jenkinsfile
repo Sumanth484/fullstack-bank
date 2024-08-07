@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     tools{
-        jdk 'jdk17'
-        nodejs 'node16'
+        jdk 'java17'
+        nodejs 'nodejs16'
         
     }
     
@@ -20,7 +20,7 @@ pipeline {
         
         stage('OWASP FS SCAN') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./app/backend --disableYarnAudit --disableNodeAudit', odcInstallation: 'DC'
+                dependencyCheck additionalArguments: '--scan .', odcInstallation: 'owasp'
                     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
@@ -34,7 +34,7 @@ pipeline {
         stage('SONARQUBE ANALYSIS') {
             steps {
                 withSonarQubeEnv('sonar') {
-                    sh " $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Bank -Dsonar.projectKey=Bank "
+                    sh " $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=bank -Dsonar.projectKey=bank "
                 }
             }
         }
@@ -48,7 +48,7 @@ pipeline {
         
         stage('Backend') {
             steps {
-                dir('/root/.jenkins/workspace/Bank/app/backend') {
+                dir('/var/lib/jenkins/workspace/Bank/app/backend') {
                     sh "npm install"
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
         
         stage('frontend') {
             steps {
-                dir('/root/.jenkins/workspace/Bank/app/frontend') {
+                dir('/var/lib/jenkins/workspace/Bank/app/frontend') {
                     sh "npm install"
                 }
             }
